@@ -1,19 +1,35 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux';
 
+import Data from './components/Data'
+import { Form, Grid } from 'semantic-ui-react'
 
 class App extends Component {
+  
   render() {
+    
+    const fields = this.props.data.map((v, i) => (
+      <Data key={i} />
+    ));
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+      <Grid container centered>
+        <Grid.Column width="10">
+        <Form>
+        {fields}
+        </Form>
+        </Grid.Column>
+      </Grid>
     );
   }
 }
 
-export default App;
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.data
+  }
+}
+
+
+export default connect(mapStateToProps)(App);
