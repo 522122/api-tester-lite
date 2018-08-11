@@ -2,61 +2,20 @@ import React, { Component } from "react";
 import { Form } from "semantic-ui-react";
 import Params from "./Params";
 import { connect } from "react-redux";
-import { urlUpdate, newLine, methodUpdate, setResponse } from "../actions";
-import axios from "axios";
+import { urlUpdate, newLine, methodUpdate, submitRequest } from "../actions";
 
 const options = [
     { key: "GET", text: "GET", value: "GET" },
-    { key: "POST", text: "POST", value: "POST" }
+    { key: "POST", text: "POST", value: "POST" },
+    { key: "DELETE", text: "DELETE", value: "DELETE" },
+    { key: "PUT", text: "PUT", value: "PUT" }
 ];
 
 class RequestForm extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            loading: false
-        };
-
-        this.sendRequest = this.sendRequest.bind(this);
-    }
-
-    sendRequest() {
-        if (this.state.loading) {
-            return;
-        }
-
-        const { method, url, data } = this.props;
-        let formData = data.filter(v => v.active).reduce((a, b) => {
-            return { ...a, [b.prop]: b.value };
-        }, {});
-        this.setState({ loading: true });
-        axios({
-            data: formData,
-            method,
-            url
-        })
-            .then(response => {
-                this.props.setResponse(response);
-            })
-            .catch(error => {
-                this.props.setResponse(error.response);
-            })
-            .then(() => {
-                this.setState({ loading: false });
-                localStorage.setItem(
-                    "state",
-                    JSON.stringify({
-                        method,
-                        url,
-                        data
-                    })
-                );
-            });
-    }
-
     render() {
+        let { method, url, data } = this.props;
         return (
-            <Form onSubmit={this.sendRequest}>
+            <Form onSubmit={() => this.props.onSubmit({ url, method, data })}>
                 <Form.Group>
                     <Form.Select
                         fluid
@@ -79,7 +38,7 @@ class RequestForm extends Component {
 
                 <Form.Group>
                     <Form.Field width="2" />
-                    <Form.Button loading={this.state.loading}>
+                    <Form.Button loading={this.props.response.fetching}>
                         Send request
                     </Form.Button>
                     <Form.Button
@@ -96,11 +55,12 @@ class RequestForm extends Component {
 }
 
 const mapStateToProps = state => {
-    const { data, url, method } = state;
+    const { data, url, method, response } = state;
     return {
         data,
         url,
-        method
+        method,
+        response
     };
 };
 
@@ -108,7 +68,17 @@ const mapDispatchToProps = {
     onUrlChange: e => urlUpdate(e.target.value),
     onMethodChange: (e, { value }) => methodUpdate(value),
     addField: () => newLine(),
-    setResponse
+    onSubmit: request => {
+        let filteredData = request.data.filter(v => v.active).reduce((a, b) => {
+            return { ...a, [b.prop]: b.value };
+        }, {});
+        localStorage.setItem("state", JSON.stringify(request));
+        return submitRequest({
+            data: filteredData,
+            method: request.method,
+            url: request.url
+        });
+    }
 };
 
 export default connect(

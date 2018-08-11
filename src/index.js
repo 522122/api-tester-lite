@@ -5,6 +5,7 @@ import registerServiceWorker from "./registerServiceWorker";
 import { Provider } from "react-redux";
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import logger from "redux-logger";
+import promiseMiddleware from "redux-promise-middleware";
 
 import {
     NEW_LINE,
@@ -12,8 +13,9 @@ import {
     FIELD_UPDATE,
     URL_UPDATE,
     METHOD_UPDATE,
-    SET_RESPONSE
+    SUBMIT_REQUEST
 } from "./actions";
+
 import { newLine, methodUpdate, urlUpdate } from "./actions";
 
 const data = (state = [], action) => {
@@ -37,9 +39,27 @@ const data = (state = [], action) => {
     }
 };
 
+const response = (state = { fetching: false, data: {} }, action) => {
+    switch (action.type) {
+        case SUBMIT_REQUEST + "_PENDING":
+            return {
+                ...state,
+                fetching: true
+            };
+        case SUBMIT_REQUEST + "_FULFILLED":
+            return {
+                fetching: false,
+                data: action.payload
+            };
+        default:
+            return state;
+    }
+};
+
 const store = createStore(
     combineReducers({
         data,
+        response,
         url: (state = "", action) => {
             if (action.type === URL_UPDATE) {
                 return action.url;
@@ -51,15 +71,9 @@ const store = createStore(
                 return action.method;
             }
             return state;
-        },
-        response: (state = {}, action) => {
-            if (action.type === SET_RESPONSE) {
-                return Object.assign({}, action.response);
-            }
-            return state;
         }
     }),
-    applyMiddleware(logger)
+    applyMiddleware(promiseMiddleware(), logger)
 );
 
 let localStateString = localStorage.getItem("state");

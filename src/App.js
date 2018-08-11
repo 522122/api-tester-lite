@@ -7,7 +7,7 @@ import Response from "./components/Response";
 
 const styles = {
     container: {
-        marginTop: 50
+        marginTop: "1rem"
     }
 };
 

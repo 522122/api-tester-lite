@@ -1,4 +1,5 @@
 import uid from "uid";
+import axios from "axios";
 
 // data reducer
 export const NEW_LINE = "NEW_LINE";
@@ -11,13 +12,35 @@ export const URL_UPDATE = "URL_UPDATE";
 // method reducer
 export const METHOD_UPDATE = "METHOD_UPDATE";
 
-export const SET_RESPONSE = "SET_RESPONSE";
+//export const SET_RESPONSE = "SET_RESPONSE";
 
-// response
-export const setResponse = response => {
+export const SUBMIT_REQUEST = "SUBMIT_REQUEST";
+
+export const submitRequest = ({ data, method, url }) => {
     return {
-        type: SET_RESPONSE,
-        response
+        type: SUBMIT_REQUEST,
+        payload: new Promise((resolve, reject) => {
+            axios({
+                data,
+                method,
+                url
+            })
+                .then(response => {
+                    //console.log("RESOLVE");
+                    resolve(response.data);
+                })
+                .catch(e => {
+                    console.log(e);
+                    if (e.response) {
+                        resolve(e.response);
+                    } else {
+                        resolve({
+                            error:
+                                "Error while fetching data, see console for more details."
+                        });
+                    }
+                });
+        })
     };
 };
 
