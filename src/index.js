@@ -1,65 +1,69 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import registerServiceWorker from './registerServiceWorker';
-
-import {BrowserRouter} from 'react-router-dom';
-
-
-import {Provider} from 'react-redux';
-import {createStore, combineReducers, applyMiddleware} from 'redux';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import registerServiceWorker from "./registerServiceWorker";
+import { Provider } from "react-redux";
+import { createStore, combineReducers, applyMiddleware } from "redux";
 import logger from "redux-logger";
 
-import {NEW_LINE, REMOVE_LINE, FIELD_UPDATE, URL_UPDATE, METHOD_UPDATE } from './actions';
-import {newLine, methodUpdate, urlUpdate} from './actions';
-
-
-
+import {
+    NEW_LINE,
+    REMOVE_LINE,
+    FIELD_UPDATE,
+    URL_UPDATE,
+    METHOD_UPDATE,
+    SET_RESPONSE
+} from "./actions";
+import { newLine, methodUpdate, urlUpdate } from "./actions";
 
 const data = (state = [], action) => {
-    switch(action.type) {
+    switch (action.type) {
         case NEW_LINE:
             return [...state, action.data];
         case REMOVE_LINE:
-            return state.filter(v=>v.id!==action.id)
+            return state.filter(v => v.id !== action.id);
         case FIELD_UPDATE:
-            let index = state.findIndex((e) => e.id === action.data.id);
+            let index = state.findIndex(e => e.id === action.data.id);
             return [
-                ...state.slice(0,index),
+                ...state.slice(0, index),
                 {
                     ...state[index],
                     ...action.data
                 },
                 ...state.slice(index + 1)
-            ]
+            ];
         default:
             return state;
     }
-}
-
+};
 
 const store = createStore(
     combineReducers({
         data,
-        url: (state = '', action) => {
-            if ( action.type === URL_UPDATE ) {
-                return action.url
+        url: (state = "", action) => {
+            if (action.type === URL_UPDATE) {
+                return action.url;
             }
-            return state
+            return state;
         },
-        method: (state = 'GET', action) => {
-            if ( action.type === METHOD_UPDATE ) {
+        method: (state = "GET", action) => {
+            if (action.type === METHOD_UPDATE) {
                 return action.method;
             }
-            return state
+            return state;
+        },
+        response: (state = {}, action) => {
+            if (action.type === SET_RESPONSE) {
+                return Object.assign({}, action.response);
+            }
+            return state;
         }
-    }), applyMiddleware(logger)
-)
+    }),
+    applyMiddleware(logger)
+);
 
-let localStateString = localStorage.getItem('state');
-console.log(localStateString);
-if ( !localStateString ) {
+let localStateString = localStorage.getItem("state");
+if (!localStateString) {
     store.dispatch(newLine());
     store.dispatch(newLine());
     store.dispatch(newLine());
@@ -70,12 +74,21 @@ if ( !localStateString ) {
     store.dispatch(urlUpdate(url));
 
     data.map(v => {
-        let {active, prop, value } = v 
-        store.dispatch(newLine({
-            active, prop, value
-        }));
+        let { active, prop, value } = v;
+        store.dispatch(
+            newLine({
+                active,
+                prop,
+                value
+            })
+        );
     });
 }
 
-ReactDOM.render(<BrowserRouter><Provider store={store}><App /></Provider></BrowserRouter>, document.getElementById('root'));
+ReactDOM.render(
+    <Provider store={store}>
+        <App />
+    </Provider>,
+    document.getElementById("root")
+);
 registerServiceWorker();
