@@ -2,7 +2,13 @@ import React, { Component } from "react";
 import { Form } from "semantic-ui-react";
 import Params from "./Params";
 import { connect } from "react-redux";
-import { urlUpdate, newLine, methodUpdate, submitRequest } from "../actions";
+import {
+    urlUpdate,
+    newLine,
+    methodUpdate,
+    submit,
+    submitRequest
+} from "../actions";
 
 const options = [
     { key: "GET", text: "GET", value: "GET" },
@@ -15,7 +21,13 @@ class RequestForm extends Component {
     render() {
         let { method, url, data } = this.props;
         return (
-            <Form onSubmit={() => this.props.onSubmit({ url, method, data })}>
+            <Form
+                onSubmit={() =>
+                    !this.props.response.fetching
+                        ? this.props.onSubmit({ url, method, data })
+                        : ""
+                }
+            >
                 <Form.Group>
                     <Form.Select
                         fluid
@@ -68,17 +80,7 @@ const mapDispatchToProps = {
     onUrlChange: e => urlUpdate(e.target.value),
     onMethodChange: (e, { value }) => methodUpdate(value),
     addField: () => newLine(),
-    onSubmit: request => {
-        let filteredData = request.data.filter(v => v.active).reduce((a, b) => {
-            return { ...a, [b.prop]: b.value };
-        }, {});
-        localStorage.setItem("state", JSON.stringify(request));
-        return submitRequest({
-            data: filteredData,
-            method: request.method,
-            url: request.url
-        });
-    }
+    onSubmit: request => submit(request)
 };
 
 export default connect(

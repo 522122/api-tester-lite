@@ -2,6 +2,7 @@ import React from "react";
 import RequestForm from "./components/RequestForm";
 import { Grid, Container } from "semantic-ui-react";
 import Response from "./components/Response";
+import History from "./components/History";
 
 //import _ from 'lodash';
 
@@ -14,12 +15,15 @@ const styles = {
 const App = () => {
     return (
         <Container style={styles.container}>
-            <Grid centered>
-                <Grid.Column width="10">
+            <Grid>
+                <Grid.Column width="4">
+                    <History />
+                </Grid.Column>
+                <Grid.Column width="12">
                     <RequestForm />
+                    <Response />
                 </Grid.Column>
             </Grid>
-            <Response />
         </Container>
     );
 };

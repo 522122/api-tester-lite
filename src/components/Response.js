@@ -1,45 +1,24 @@
 import React from "react";
 import { connect } from "react-redux";
-import ReactJson from "react-json-view";
+//import ReactJson from "react-json-view";
+
+import styled from "styled-components";
 
 import { Dimmer, Loader, Segment } from "semantic-ui-react";
 
-const styles = {
-    segment: {
-        overflow: "scroll",
-        maxHeight: "50vh"
-    }
-};
+const Pre = styled.pre`
+    white-space: pre-wrap;
+`;
 
 const Response = ({ response }) => {
     return Object.keys(response.data).length ? (
-        <Dimmer.Dimmable
-            dimmed={response.fetching}
-            as={Segment}
-            style={styles.segment}
-        >
-            <Dimmer active={response.fetching} inverted verticalAlign="top">
-                <Loader>Loading</Loader>
-            </Dimmer>
+        <Dimmer.Dimmable dimmed={response.fetching} as={Segment}>
+            <Dimmer active={response.fetching} inverted />
 
-            {/* <SyntaxHighlighter language="javascript">
-                {JSON.stringify(
-                    {
-                        response
-                    },
-                    null,
-                    4
-                )}
-            </SyntaxHighlighter> */}
-            {/* <ReactJson
-                name={null}
-                src={{
-                    status: response.status,
-                    statusText: response.statusText,
-                    data: response.data
-                }}
-            /> */}
-            <ReactJson name={null} src={response.data} />
+            {/* <ReactJson name={null} src={response.data} /> */}
+            <Pre>
+                <code>{JSON.stringify(response.data, null, 4)}</code>
+            </Pre>
         </Dimmer.Dimmable>
     ) : (
         ""
