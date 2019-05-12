@@ -124,6 +124,8 @@ if (!localStateString) {
     store.dispatch(newLine());
     store.dispatch(newLine());
     store.dispatch(newLine());
+} else {
+    store.dispatch({ type: SUBMIT_REQUEST + "_FULFILLED" });
 }
 // } else {
 //     let { method, data, url } = JSON.parse(localStateString);
